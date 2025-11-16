@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Wild West Publishing — Ebooks</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root{ --bg:#0f1218; --card:#161a22; --text:#e9edf5; --muted:#a7b0c3; --accent:#6ee7ff; --accent2:#7c5cff; --border:#222837; }
+    *{box-sizing:border-box}
+    html,body{margin:0; padding:0; background:var(--bg); color:var(--text); font-family:Inter,sans-serif}
+    a{color:inherit; text-decoration:none}
+    img{max-width:100%; display:block}
+    .container{max-width:1100px; margin:0 auto; padding:0 20px}
+    header{position:sticky; top:0; backdrop-filter:saturate(180%) blur(12px); background:rgba(15,18,24,.7); border-bottom:1px solid var(--border); z-index:100}
+    .nav{display:flex; align-items:center; justify-content:space-between; padding:14px 0}
+    .brand{display:flex; align-items:center; gap:10px; font-weight:700; letter-spacing:.2px}
+    .brand-badge{width:28px; height:28px; border-radius:8px; background:linear-gradient(135deg,var(--accent),var(--accent2)); box-shadow:0 6px 20px rgba(108,99,255,.35)}
+    .nav-links{display:flex; gap:20px}
+    .nav-links a{padding:8px 10px; border-radius:8px}
+    .nav-links a:hover{background:rgba(255,255,255,.06)}
+    .plus-header{background:none; border:none; color:#6ee7ff; font-size:2rem; margin-left:18px; cursor:pointer; align-self:center;}
+    .hero{padding:48px 0 24px}
+    .hero-inner{display:grid; grid-template-columns:1.2fr .8fr; gap:24px}
+    .hero h1{font-size:32px; margin:0 0 8px}
+    .hero p{color:var(--muted); margin:0 0 18px}
+    .search{display:flex; gap:10px}
+    .search input{flex:1; padding:12px 14px; border-radius:10px; border:1px solid var(--border); background:var(--card); color:var(--text)}
+    .search button{padding:12px 16px; border-radius:10px; border:0; background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#0b0e14; font-weight:600; cursor:pointer}
+    .search button:hover{filter:brightness(1.05)}
+    .stats{display:flex; gap:16px; flex-wrap:wrap; margin-top:12px}
+    .stat{background:var(--card); border:1px solid var(--border); border-radius:12px; padding:12px 14px}
+    .hero-card{background:linear-gradient(180deg,rgba(124,92,255,.15),rgba(20,24,32,.6)); border:1px solid var(--border); border-radius:16px; padding:18px}
+    .hero-card h3{margin:0 0 8px; font-size:18px}
+    .hero-card p{color:var(--muted); margin:0}
+    section{padding:26px 0}
+    .section-head{display:flex; align-items:end; justify-content:space-between; margin-bottom:14px}
+    .section-head h2{font-size:22px; margin:0}
+    .section-head .actions{display:flex; gap:12px}
+    .pill{padding:8px 12px; border:1px solid var(--border); border-radius:999px; color:var(--muted); cursor:pointer}
+    .pill.active{border-color:transparent; background:rgba(110,231,255,.15); color:var(--text)}
+    .grid{display:grid; grid-template-columns:repeat(4,1fr); gap:16px}
+    @media (max-width:980px){ .grid{grid-template-columns:repeat(3,1fr)} }
+    @media (max-width:720px){ .grid{grid-template-columns:repeat(2,1fr)} .hero-inner{grid-template-columns:1fr} }
+    @media (max-width:460px){ .grid{grid-template-columns:1fr} }
+    .book{background:var(--card); border:1px solid var(--border); border-radius:14px; overflow:hidden; display:flex; flex-direction:column}
+    .cover{aspect-ratio:3/4; background:#10141b; display:flex; align-items:center; justify-content:center}
+    .cover img{width:78%; height:auto; object-fit:cover; filter:drop-shadow(0 8px 16px rgba(0,0,0,.5))}
+    .book-body{padding:12px}
+    .title{font-weight:600; margin:0 0 6px; font-size:15px}
+    .meta{color:var(--muted); font-size:13px; display:flex; gap:10px}
+    .tags{margin-top:10px; display:flex; gap:8px; flex-wrap:wrap}
+    .tag{font-size:12px; color:#0b0e14; background:linear-gradient(135deg,var(--accent),var(--accent2)); padding:6px 8px; border-radius:999px; font-weight:600}
+    .book-story{color:var(--text); font-size:13px; margin:12px 0 0 0; border-top:1px dashed var(--border); padding-top:10px;}
+    .card-actions{margin-top:auto; display:flex; align-items:center; justify-content:space-between; border-top:1px dashed var(--border); padding:10px 12px}
+    .btn{padding:8px 10px; border-radius:10px; border:1px solid var(--border); background:transparent; color:var(--text); cursor:pointer}
+    .btn.primary{border:0; background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#0b0e14; font-weight:700}
+    .price{font-weight:700}
+    .modal {
+      display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100vw; height: 100vh;
+      background: rgba(20,24,32,0.95); align-items: center; justify-content: center;
+    }
+    .modal.show { display: flex; }
+    .modal-content {
+      background: #161a22; color: #e9edf5; padding: 32px 24px; border-radius: 16px; max-width: 700px; width: 90vw; max-height: 85vh; overflow-y: auto; box-shadow: 0 12px 48px rgba(0,0,0,0.4); position: relative;
+    }
+    .close-modal {
+      position: absolute; right: 22px; top: 12px; background: none; border: none; color: #7c5cff; font-size: 2rem; cursor: pointer;
+    }
+    .add-story-btn {
+      position: absolute;
+      top: 18px;
+      left: 18px;
+      background: none;
+      border: none;
+      font-size: 2rem;
+      color: #6ee7ff;
+      cursor: pointer;
+    }
+    .story-text { font-size: 17px; line-height: 1.7; margin-top: 16px;}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container nav">
+      <div class="brand">
+        <div class="brand-badge"></div>
+        Wild West Publishing
+      </div>
+      <nav class="nav-links">
+        <a href="#featured">Featured</a>
+        <a href="#latest">Latest</a>
+      </nav>
+      <button id="open-add-story" class="plus-header" title="Add Your Story">+</button>
+    </div>
+  </header>
+  <main>
+    <section class="hero">
+      <div class="container hero-inner">
+        <div>
+          <h1>Find your next immersive read</h1>
+          <p>Browse curated ebooks—now all free to read and download instantly. No paywalls, just stories.</p>
+          <div class="search">
+            <input id="searchInput" type="search" placeholder="Search by title, author, or tag…" />
+            <button id="searchBtn">Search</button>
+          </div>
+          <div class="stats">
+            <div class="stat"><strong>12,400+</strong> titles</div>
+            <div class="stat"><strong>1,800+</strong> authors</div>
+            <div class="stat"><strong>4.7★</strong> avg rating</div>
+          </div>
+        </div>
+        <div class="hero-card">
+          <h3>Weekly pick: The Quiet Algorithm</h3>
+          <p>A human story about machines, memory, and meaning. Free sample included. Now 100% free for all readers!</p>
+        </div>
+      </div>
+    </section>
+    <section id="featured">
+      <div class="container">
+        <div class="section-head">
+          <h2>Featured books</h2>
+          <div class="actions">
+            <span class="pill active">All</span>
+            <span class="pill" data-filter="fiction">Fiction</span>
+            <span class="pill" data-filter="nonfiction">Non‑fiction</span>
+            <span class="pill" data-filter="tech">Tech</span>
+          </div>
+        </div>
+        <div class="grid" id="bookGrid">
+
+          <!-- Book 1 -->
+          <article class="book" data-tags="fiction mystery bestseller">
+            <div class="cover">
+              <img alt="Book cover: The Last Ledger" src="https://dummyimage.com/300x400/1b2230/ffffff&text=The+Last+Ledger" />
+            </div>
+            <div class="book-body">
+              <h3 class="title">The Last Ledger</h3>
+              <div class="meta"><span>By Priya Khanna</span><span>•</span><span>Fiction</span></div>
+              <div class="tags"><span class="tag">Mystery</span><span class="tag">Bestseller</span></div>
+              <div class="book-story"><em>A story of rainy nights, secrets, and debts repaid.</em></div>
+            </div>
+            <div class="card-actions">
+              <span class="price">Free</span>
+              <div>
+                <button class="btn">Sample</button>
+                <button class="btn primary read-btn" data-modal="modal-book-1" type="button">Read Free</button>
+              </div>
+            </div>
+          </article>
+          <div class="modal" id="modal-book-1" tabindex="-1">
+            <div class="modal-content">
+              <button class="close-modal" aria-label="Close story">&times;</button>
+              <button class="add-story-btn" aria-label="Add your story" onclick="alert('Add story functionality coming soon!')">+</button>
+              <h2>The Last Ledger</h2>
+              <div class="story-text">
+<!-- FULL STORY RESTORED HERE (see previous answer for text) -->
+Parth waited for the city to sleep before he set to work.
+The rain painted shifting patterns on his office window as he pored over ledgers that most thought unremarkable.
+Each number whispered something strange, and Parth listened as only the lonely do.
+His fingers ran across a transaction he didn’t recognize—a midnight withdrawal, too precise for coincidence.
+He poured another cup of chai and reminded himself that truth was slow but relentless.
+The city streets, glistening with rain, hid stories in every shadow.
+He called Rhea, his oldest friend, who listened quietly as Parth explained the anomaly.
+“That’s the third this week,” Rhea whispered, voice thin with worry over the line.
+Parth didn’t like the pattern he saw. He opened an old file and, with every page he turned, his doubts grew.
+Thunder rattled the glass. Parth’s pen raced, connecting dates, amounts, names.
+Patterns emerged not only in columns of figures but in the gaps between.
+He found links to a closed company, a forgotten charity, a politician with a smile too practiced.
+His phone buzzed: “Be careful tonight.” He didn’t know who sent the text.
+Still, he kept digging, afraid of what he might come to know. The night deepened and the world shrank to his desk lamp’s glow.
+He heard footsteps in the hallway—just a neighbor, surely, or maybe the building creaked with the weight of secrets.
+Parth almost laughed at his own nerves, but courage in the face of danger always felt ridiculous at first.
+He wrote down everything. His notebook became a tapestry of loops and arrows, names beside motives, timelines thickening.
+He thought of his father, an honest accountant, who taught Parth to never ignore a mistake or a missing rupee.
+Then there was the email: “Come to the bridge at dawn. Bring what you’ve found.”
+Parth debated deleting it, but too much was at stake for silence. He printed out the files, filled his battered satchel, and put on his father’s raincoat.
+The streets were empty except for cabs ferrying hope and regret between low-lit windows.
+Parth walked quickly, hearing his own breath in time with distant police sirens.
+At the bridge, a figure was waiting—tall and thin, holding an umbrella against the hard monsoon wind.
+Parth handed over the papers. “If I disappear, tell Rhea.” The figure nodded, pocketed the evidence, and melted into the silver rain.
+Parth turned for home, danger close as the city’s heartbeats.
+He arrived to find his window open, a single red rose on his bed.
+He never locked the window, trusting the city would protect those who tried to protect it. Now, he locked it, feeling sleep approach on wet feet.
+He dreamed of ledgers—of numbers rearranging themselves, spelling out warnings he almost missed.
+He woke to pounding at the door, but it was only Rhea, carrying hot puri and relief.
+They sat, ate, and watched the city dry out under uncertain sun.
+In the days that followed, arrests filled the news. The scandal reached the highest offices.
+Parth kept his head down, refusing interviews, unwilling to be a hero.
+He returned to his small office, window repaired, ledgers clean.
+Yet, some nights, when thunder rolled, Parth would pause and listen for secrets in the storm.
+Because once you’ve heard the city whisper, you never forget its voice.
+He learned that the sum of all kindness is never lost, just waiting in someone’s story.
+And sometimes that’s enough to erase even the oldest debts.
+Another night, another ledger, another secret—a city full of stories waiting to be seen.
+              </div>
+            </div>
+          </div>
+
+          <!-- Book 2 -->
+          <article class="book" data-tags="fiction romance letters">
+            <div class="cover">
+              <img alt="Book cover: Monsoon Letters" src="https://dummyimage.com/300x400/1b2230/ffffff&text=Monsoon+Letters" />
+            </div>
+            <div class="book-body">
+              <h3 class="title">Monsoon Letters</h3>
+              <div class="meta"><span>By Arun Sharma</span><span>•</span><span>Fiction</span></div>
+              <div class="tags"><span class="tag">Romance</span><span class="tag">Letters</span></div>
+              <div class="book-story"><em>An epistolary romance written in rain.</em></div>
+            </div>
+            <div class="card-actions">
+              <span class="price">Free</span>
+              <div>
+                <button class="btn">Sample</button>
+                <button class="btn primary read-btn" data-modal="modal-book-2" type="button">Read Free</button>
+              </div>
+            </div>
+          </article>
+          <div class="modal" id="modal-book-2" tabindex="-1">
+            <div class="modal-content">
+              <button class="close-modal" aria-label="Close story">&times;</button>
+              <button class="add-story-btn" aria-label="Add your story" onclick="alert('Add story functionality coming soon!')">+</button>
+              <h2>Monsoon Letters</h2>
+              <div class="story-text">
+<!-- Story 2 -->
+The first letter arrived in a blue envelope, the address smeared by rain.
+Rhea almost missed it, tucked between a grocery flyer and an overdue bill.
+“I saw the rain, and I thought of you,” wrote Arjun.
+Rhea smiled, her heart skipping at the familiarity in penmanship.
+From that day, the monsoon brought letter after letter—pages, scraps, poems and postcards, all soaked in longing.
+Rhea wrote back, quick as lightning, describing flooded streets, the scent of tulsi, her grandmother’s warnings not to waste good rain.
+The city sank in water, but these letters lifted her above the puddles, reminding her that hope could travel faster than the storm.
+Sometimes, a letter arrived so drenched the ink bled into the envelope.
+In others, Arjun included a pressed marigold, or a list of songs to play when rain tapped on her window.
+One afternoon, a packet came tied with string. Inside: a folded paper boat, marked with an itinerary for imaginary travels together.
+Rhea placed it in a basin, letting it sail in circles as the rain thrummed against her house.
+She began sharing letters with her neighbors, turning their block into a riverbank of stories.
+Children wrote wishes and tucked them into bottles, tossing them into monsoon streams.
+On the fiftieth day of rain, Arjun’s letter read simply, “Meet me by the market whenever the clouds break.”
+The next morning, sunlight slanted across the tiles, and Rhea ran, heart leaping ahead.
+She found him by a mango stall, holding both an umbrella and a bouquet of jasmine.
+They walked, reading the last letter together, laughter echoing across wet cobblestones.
+The city’s traffic resumed, umbrellas popping like flowers, but all Rhea noticed were Arjun’s eyes—bright, storm-washed, safe.
+From then on, the monsoon’s arrival meant stories, not sadness.
+In time, they wrote less, spoke more, knowing the rain would always bring them together.
+No matter where life sent them, the letters became their root—a conversation that weathered every storm.
+And when they grew old together, each monsoon they sat by the window, watching the rain, remembering the words that first drew them close.
+Rhea never threw away a single letter.
+Each thunderclap outside was just another line in their ongoing story.
+              </div>
+            </div>
+          </div>
+
+          <!-- Book 3 -->
+          <article class="book" data-tags="fiction family time">
+            <div class="cover">
+              <img alt="Book cover: The Clockwork Key" src="https://dummyimage.com/300x400/1b2230/ffffff&text=The+Clockwork+Key" />
+            </div>
+            <div class="book-body">
+              <h3 class="title">The Clockwork Key</h3>
+              <div class="meta"><span>By Shweta Suri</span><span>•</span><span>Fiction</span></div>
+              <div class="tags"><span class="tag">Family</span><span class="tag">Time</span></div>
+              <div class="book-story"><em>A magical key to unraveling the past.</em></div>
+            </div>
+            <div class="card-actions">
+              <span class="price">Free</span>
+              <div>
+                <button class="btn">Sample</button>
+                <button class="btn primary read-btn" data-modal="modal-book-3" type="button">Read Free</button>
+              </div>
+            </div>
+          </article>
+          <div class="modal" id="modal-book-3" tabindex="-1">
+            <div class="modal-content">
+              <button class="close-modal" aria-label="Close story">&times;</button>
+              <button class="add-story-btn" aria-label="Add your story" onclick="alert('Add story functionality coming soon!')">+</button>
+              <h2>The Clockwork Key</h2>
+              <div class="story-text">
+Shyam’s grandmother told him their family had kept secrets for generations.
+He never believed her, until the day he found the clockwork key buried in a box of old recipes.
+It was brass, stamped with odd runes that glinted oddly even in shadow.
+Curious, Shyam pressed it into the slot of the ancient clock on their mantle.
+At first, nothing happened. Then, the clock began to chime a slow, strange melody.
+The world wobbled, and suddenly Shyam stood not in his living room, but atop a city wall hundreds of years ago.
+People hurried beneath him, their language different but their lives familiar.
+He realized: the key let him slip through time, watching his ancestors’ milestones.
+He saw his great-grandfather build their home, brick by hopeful brick.
+His great-aunt laughing, teaching songs to children in the courtyard.
+He spied his mother as a girl, worried she’d lost her best friend, only to find her under a guava tree.
+Every twist of the key pulled Shyam to new corners of his family tree—some moments joyful, others full of tears.
+He witnessed arguments patched up with hugs and festivals celebrated with midnight dances.
+He learned love was their greatest inheritance—and humility their shield.
+When he finally returned to the present, the clock was still, its hands at midnight.
+The key, warm in his palm, seemed heavier for all the history it had shown him.
+Shyam hugged his grandmother and shared what he had seen.
+She only smiled, turning her own hands over his.
+“Now you know, we’re all stories in the making.”
+From then on, Shyam wore the key on a chain, a reminder that the present is built by memories only kindness can unlock.
+Even in moments of uncertainty, he trusted the inheritance of love would always bring him home.
+              </div>
+            </div>
+          </div>
+
+          <!-- Book 4 -->
+          <article class="book" data-tags="fiction adventure floods">
+            <div class="cover">
+              <img alt="Book cover: The Floating Library" src="https://dummyimage.com/300x400/1b2230/ffffff&text=The+Floating+Library" />
+            </div>
+            <div class="book-body">
+              <h3 class="title">The Floating Library</h3>
+              <div class="meta"><span>By Meena Pillai</span><span>•</span><span>Fiction</span></div>
+              <div class="tags"><span class="tag">Adventure</span><span class="tag">Floods</span></div>
+              <div class="book-story"><em>Books afloat, hope afloat.</em></div>
+            </div>
+            <div class="card-actions">
+              <span class="price">Free</span>
+              <div>
+                <button class="btn">Sample</button>
+                <button class="btn primary read-btn" data-modal="modal-book-4" type="button">Read Free</button>
+              </div>
+            </div>
+          </article>
+          <div class="modal" id="modal-book-4" tabindex="-1">
+            <div class="modal-content">
+              <button class="close-modal" aria-label="Close story">&times;</button>
+              <button class="add-story-btn" aria-label="Add your story" onclick="alert('Add story functionality coming soon!')">+</button>
+              <h2>The Floating Library</h2>
+              <div class="story-text">
+After the river overflowed, the city was more water than land.
+Homes shifted, boats became more valuable than bicycles, and silence reigned.
+Meena’s biggest worry had always been losing her books to mildew, but now, more than ever, books became a lifeline.
+She stacked waterproof boxes on a bamboo raft and set out, calling softly through the alleys.
+Children stranded on verandas called back, faces eager beneath bobbing umbrellas.
+She lent them stories: comics, old schoolbooks, legend collections, and new novels.
+On rainy nights, she paddled to nurse her best friend’s fever with a stack of fables.
+Once, a woman wept as she returned a children’s novel: “I thought I’d forgotten joy.”
+Floating from home to home, Meena became part librarian, part confidant, part hope.
+At each stop she heard a new chapter—how a family coped with darkness, how a widow gardened on her roof, how two brothers learned to share a hammock.
+The raft became a classroom, a salon, a confessional.
+Meena carried not just pages, but laughter, and stories that no flood could drown.
+By the time the river sank down, the rafters and readers returned to solid ground with new friendships and dreams afloat.
+Years later, people spoke of the floating library as if it were simply a rumor.
+But Meena, now old and laughing, remembered every word she’d ferried, and every smile returned along the water’s path.
+              </div>
+            </div>
+          </div>
+
+          <!-- Book 5 -->
+          <article class="book" data-tags="fiction fantasy spirits">
+            <div class="cover">
+              <img alt="Book cover: Ghostlight Lane" src="https://dummyimage.com/300x400/1b2230/ffffff&text=Ghostlight+Lane" />
+            </div>
+            <div class="book-body">
+              <h3 class="title">Ghostlight Lane</h3>
+              <div class="meta"><span>By Rafiq Merchant</span><span>•</span><span>Fiction</span></div>
+              <div class="tags"><span class="tag">Fantasy</span><span class="tag">Spirits</span></div>
+              <div class="book-story"><em>Lamps, memories, and ghosts remembered.</em></div>
+            </div>
+            <div class="card-actions">
+              <span class="price">Free</span>
+              <div>
+                <button class="btn">Sample</button>
+                <button class="btn primary read-btn" data-modal="modal-book-5" type="button">Read Free</button>
+              </div>
+            </div>
+          </article>
+          <div class="modal" id="modal-book-5" tabindex="-1">
+            <div class="modal-content">
+              <button class="close-modal" aria-label="Close story">&times;</button>
+              <button class="add-story-btn" aria-label="Add your story" onclick="alert('Add story functionality coming soon!')">+</button>
+              <h2>Ghostlight Lane</h2>
+              <div class="story-text">
+On Ghostlight Lane, each streetlamp burned with a cold blue flame.
+No one remembered who first lit them—only that, if a lamp went out, the ghosts grew restless.
+Rafiq, the caretaker, was afraid of many things but never the ghosts themselves.
+He watched their shadows curl and flicker behind glass as he polished the lamps each dusk.
+The townspeople avoided the lane, but Rafiq greeted every ghost by name.
+They told him secrets: a hidden locket, a song trapped in a music box, a debt forgiven long ago.
+One stormy evening, a lamp failed to flicker—the blue flame guttered and died.
+Rafiq wandered alone, searching for the lost spirit.
+He found a child, cold and silent, huddled beneath a broken swing in the old playground.
+He carried her to the warmest lamp, holding her hand as dawn tinged the rooftops gold.
+With every word, every memory coaxed from her sorrow, the lamp’s blue flame kindled anew.
+The girl joined the other ghosts, at last at ease, her voice returning to the laughter in the wind.
+From that night onward, Rafiq learned that even ghosts need to be remembered, and that sometimes, the bravest thing is to bring a little more light into the dark.
+And when he walked the lane each dusk, the lamps shone brighter—a promise that no one would be forgotten, not even the ones already gone.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- Add more <article> and <div class="modal"> for more books here, up to 50 or more -->
+  </main>
+
+  <!-- Story submission modal -->
+  <div class="modal" id="add-story-modal" tabindex="-1">
+    <div class="modal-content" style="max-width:420px">
+      <button class="close-modal" aria-label="Close story" style="right:16px;top:14px">&times;</button>
+      <h2 style="margin-top:0;">Add Your Story</h2>
+      <form id="submit-your-story" style="display:flex;flex-direction:column;gap:16px;">
+        <input type="text" id="your-story-title" placeholder="Story title" style="padding:10px 12px;border-radius:8px;border:1px solid #333;font-size:1rem;" required/>
+        <input type="text" id="your-story-author" placeholder="Your name" style="padding:10px 12px;border-radius:8px;border:1px solid #333;font-size:1rem;" required/>
+        <textarea id="your-story-text" rows="8" placeholder="Type or paste your story here..." style="padding:10px 12px;border-radius:8px;border:1px solid #333;font-size:1rem;" required></textarea>
+        <button type="submit" class="btn primary" style="width:100%;">Submit Story</button>
+      </form>
+      <div id="add-story-success" style="display:none; color:#6ee7ff; font-weight:bold; text-align:center; padding-top:14px;">Thank you! Your story has been submitted (for free review).</div>
+    </div>
+  </div>
+  <script>
+    // Book modals
+    document.querySelectorAll('.read-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const modalId = this.getAttribute('data-modal');
+        const modal = document.getElementById(modalId);
+        if (modal) modal.classList.add('show');
+      });
+    });
+    document.querySelectorAll('.close-modal').forEach(btn => {
+      btn.addEventListener('click', function() {
+        this.closest('.modal').classList.remove('show');
+      });
+    });
+    document.querySelectorAll('.modal').forEach(modal => {
+      modal.addEventListener('click', function(e) {
+        if (e.target === this) this.classList.remove('show');
+      });
+    });
+    // Plus header modal logic
+    document.getElementById('open-add-story').onclick = function() {
+      document.getElementById('add-story-modal').classList.add('show');
+    };
+    // Story form submit
+    document.getElementById('submit-your-story').onsubmit = function(e) {
+      e.preventDefault();
+      document.getElementById('add-story-success').style.display = 'block';
+      this.style.display = 'none';
+    };
+    // Search/filter code
+    const input = document.getElementById('searchInput');
+    const button = document.getElementById('searchBtn');
+    const grid = document.getElementById('bookGrid');
+    const cards = () => Array.from(document.querySelectorAll('.book'));
+    function matchesQuery(card, q){
+      const title = card.querySelector('.title').textContent.toLowerCase();
+      const meta = card.querySelector('.meta').textContent.toLowerCase();
+      const tags = (card.getAttribute('data-tags') || '').toLowerCase();
+      return title.includes(q) || meta.includes(q) || tags.includes(q);
+    }
+    function applySearch(){
+      const q = input.value.trim().toLowerCase();
+      cards().forEach(c => { c.style.display = q ? (matchesQuery(c, q) ? '' : 'none') : ''; });
+    }
+    input.addEventListener('input', applySearch);
+    button.addEventListener('click', applySearch);
+    document.querySelectorAll('.pill[data-filter]').forEach(pill=>{
+      pill.addEventListener('click', ()=>{
+        document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
+        pill.classList.add('active');
+        const f = pill.getAttribute('data-filter');
+        cards().forEach(c=>{
+          const tags = (c.getAttribute('data-tags')||'').toLowerCase();
+          c.style.display = tags.includes(f) ? '' : 'none';
+        });
+      });
+    });
+  </script>
+</body>
+</html>
